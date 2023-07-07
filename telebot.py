@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 # pip install python-telegram-bot
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-import chatbot
+from telegram.constants import ChatAction
+import main_func
 print('Starting up bot...')
 
 load_dotenv()
@@ -35,7 +36,7 @@ def handle_response(text: str) -> str:
     # Create your own response logic
     processed: str = text.lower()
 
-    response = chatbot.run_conversation(processed)
+    response = main_func.run_conversation(processed)
     return response
 
 
@@ -49,21 +50,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Print a log for debugging
     print(f'User ({update.message.chat.id}) in {message_type}: "{text}"')
 
-    # React to group messages only if users mention the bot directly
-    if message_type == 'group':
-        # Replace with your bot username
-        if BOT_USERNAME in text:
-            new_text: str = text.replace(BOT_USERNAME, '').strip()
-            response: str = handle_response(new_text)
-        else:
-            return  # We don't want the bot respond if it's not mentioned in the group
-    else:
-        response: str = handle_response(text)
+    # Show "typing..." status
+    await context.bot.send_chat_action(chat_id=update.message.chat_id, action=ChatAction.TYPING)
+    response: str = handle_response(text)
 
     # Reply normal if the message is in private
     print('Bot:', response)
     await update.message.reply_text(response)
-
 
 # Log errors
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):

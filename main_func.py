@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from openai_decorator.openai_decorator import openaifunc, get_openai_funcs
-
 import openai
 import os
 import sys
@@ -17,10 +16,9 @@ logger = logging.getLogger("httpx").setLevel(logging.WARNING)
 
 load_dotenv()  # take environment variables from .env.
 openai.api_key = os.getenv("OPENAI_API_KEY")
-TELEGRAM_TOKEN = os.getenv("BOT_TOKEN")
 
 # Membuat objek lampu dengan alamat IP, email, dan password
-l530 = PyL530.L530("192.168.0.40", "rorezxez@gmail.com", "tyutyu12T")
+l530 = PyL530.L530("192.168.0.7", "rorezxez@gmail.com", "tyutyu12T")
 # Melakukan handshake dan login
 l530.handshake()
 l530.login()
