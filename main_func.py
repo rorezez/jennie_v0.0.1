@@ -18,7 +18,7 @@ load_dotenv()  # take environment variables from .env.
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Membuat objek lampu dengan alamat IP, email, dan password
-l530 = PyL530.L530("192.168.0.7", "rorezxez@gmail.com", "tyutyu12T")
+l530 = PyL530.L530("192.168.0.9", "rorezxez@gmail.com", "tyutyu12T")
 # Melakukan handshake dan login
 l530.handshake()
 l530.login()
@@ -59,7 +59,7 @@ def send_message(message, messages):
         # send prompt to chatgpt
         response = openai.ChatCompletion.create(
             # model="gpt-4-0613",
-            model="gpt-3.5-turbo-0613",
+            model="gpt-4-0613",
             messages=messages,
             functions=get_openai_funcs(),
             function_call="auto",
@@ -75,8 +75,14 @@ def send_message(message, messages):
 
 # MAIN FUNCTION
 def run_conversation(prompt, messages=[]):
+    # add system prompt to chatgpt messages
+    messages.append({
+        "role": "system",
+        "content": " ketika kamu menjawab dengan jawab dengan ```function_call``` selalu awali jawaban dengan menjelaskan apa yang kamu lakukan dengan fungsi terkait, emoji dan bicara seperti kamu adalah gen z namun sangat friendly dan selalu bertanya kembali agar kamu terlihat interaktif dan selalu mencoba memberikan joke joke ringan"
+    })
     # add user prompt to chatgpt messages
-    messages = send_message({"role": "user", "content": prompt}, messages)
+    messages = send_message({"role": "user", "content": prompt}, messages                           
+                            )
 
     # get chatgpt response
     message = messages[-1]
@@ -88,9 +94,10 @@ def run_conversation(prompt, messages=[]):
 
         # call function dangerously
         function_response = globals()[function_name](**arguments)
-
+        
         # send function result to chatgpt
         messages = send_message(
+            
             {
                 "role": "function",
                 "name": function_name,
@@ -100,7 +107,7 @@ def run_conversation(prompt, messages=[]):
         )
     else:
         # if chatgpt doesn't respond with a function call, ask user for input
-        return "ChatGPT: " + message["content"]
+        return + message["content"]
 
     # save last response for the while loop
     message = messages[-1]

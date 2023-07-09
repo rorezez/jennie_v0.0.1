@@ -21,14 +21,14 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Lets us use the /help command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    kalau user meminta help jalankan fungsi ini
-    """
     await update.message.reply_text('Try typing anything and I will do my best to respond!')
 
 
 # Lets us use the /custom command
 async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    kalau user meminta help jalankan fungsi ini
+    """
     await update.message.reply_text('This is a custom command, you can add whatever text you want here.')
 
 
@@ -56,7 +56,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Reply normal if the message is in private
     print('Bot:', response)
-    await update.message.reply_text(response)
+    await update.message.reply_text(response, parse_mode='HTML')
 
 # Log errors
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -80,4 +80,4 @@ if __name__ == '__main__':
 
     print('Polling...')
     # Run the bot
-    app.run_polling(poll_interval=5)
+    app.run_polling(poll_interval=2)
