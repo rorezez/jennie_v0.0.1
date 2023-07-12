@@ -56,7 +56,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Reply normal if the message is in private
     print('Bot:', response)
-    await update.message.reply_text(response, parse_mode='HTML')
+    await update.message.reply_text(response,)
 
 # Log errors
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
