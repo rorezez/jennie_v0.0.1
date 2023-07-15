@@ -8,7 +8,10 @@ from dotenv import load_dotenv
 from PyP100 import PyL530
 import logging
 import memory
-from notion.client import NotionClient
+from dateutil.parser import parse
+
+from notion_client import Client
+
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.ERROR
@@ -18,11 +21,10 @@ logger = logging.getLogger("httpx").setLevel(logging.WARNING)
 
 load_dotenv()  # take environment variables from .env.
 openai.api_key = os.getenv("OPENAI_API_KEY")
-notion_token = os.getenv("NOTION_TOKEN")
-database_url = os.getenv("DATABASE_URL")
+
 
 # Membuat objek lampu dengan alamat IP, email, dan password
-l530 = PyL530.L530("192.168.0.23", "rorezxez@gmail.com", "tyutyu12T")
+l530 = PyL530.L530("192.168.0.42", "rorezxez@gmail.com", "tyutyu12T")
 # Melakukan handshake dan login
 l530.handshake()
 l530.login()
@@ -30,7 +32,7 @@ l530.login()
 @openaifunc
 def turn_on():
     """get the lamp to turn on"""
-    l530.turnOn()
+    l530.turnOn()  
     return "Turned on the light."
 
 @openaifunc
@@ -74,35 +76,45 @@ def send_message(message, messages):
 
     # add response to message list
     messages.append(response["choices"][0]["message"])
+    # print the response in JSON format
+    print(json.dumps(response, indent=4))
 
     return messages
 
 #NOTION
-def connect_to_notion(token):
-    # Menginisiasi koneksi ke Notion
-    client = NotionClient(token_v2=token)
-    return client
-def get_notion_database(client, database_url):
-    # Mengambil database Notion berdasarkan URL-nya
-    db = client.get_collection_view(database_url)
-    return db
+
 @openaifunc
-@openaifunc
-def add_reminder_to_notion(reminder):
-    """ini adalah funsi untuk menambahkan reminder pada database notion
-        @param reminder adalah task=reminder dan date=tanggal
-    """
-    # Menginisiasi koneksi ke Notion
-    client = NotionClient(token_v2=notion_token)
-    # Mengambil database Notion berdasarkan URL-nya
-    db = client.get_collection_view(database_url)
+def add_reminder(notion: Client, database_id: str, reminder: str, date: str):
+    """fungsi ini di gunakan untuk menambah reminder ke dalam notion"""
+    # Convert the date string to a datetime object
+    date_time = parse(date)
+
+    try:
+        # Create a new page in the database
+        page = notion.pages.create(
+            parent={"database_id": database_id},
+            properties={
+                "reminder": {
+                    "title": [
+                        {
+                            "text": {
+                                "content": reminder
+                            }
+                        }
+                    ]
+                },
+                "date": {
+                    "date": {
+                        "start": date_time.isoformat(),
+                    }
+                },
+            }
+        )
+        return f"Reminder berhasil ditambahkan dengan ID: {page.get('id')}"
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return "Maaf, terjadi kesalahan saat menambahkan pengingat Anda."
     
-    # Membuat baris baru di database Notion
-    row = db.collection.add_row()
-    # Menambahkan reminder ke baris baru
-    row.task = reminder['task']  # Menggunakan 'task' sebagai nama
-    row.date = reminder['date']  # Menggunakan 'date' sebagai tanggal
-    return "Reminder has been added."
 
 # MAIN FUNCTION
 def run_conversation(prompt, messages=[]):
