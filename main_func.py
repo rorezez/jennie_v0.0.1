@@ -9,7 +9,7 @@ from PyP100 import PyL530
 import logging
 import memory
 from dateutil.parser import parse
-
+from datetime import datetime
 from notion_client import Client
 
 
@@ -23,37 +23,14 @@ load_dotenv()  # take environment variables from .env.
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-# Membuat objek lampu dengan alamat IP, email, dan password
-l530 = PyL530.L530("192.168.0.42", "rorezxez@gmail.com", "tyutyu12T")
-# Melakukan handshake dan login
-l530.handshake()
-l530.login()
 
-@openaifunc
-def turn_on():
-    """get the lamp to turn on"""
-    l530.turnOn()  
-    return "Turned on the light."
-
-@openaifunc
-def turn_off():
-    """get the lamp to turn off"""
-    l530.turnOff()
-    return "Turned off the light."
-
-@openaifunc
-def set_brightness(percentage: int) -> str:
-    """set the brightness of the lamp"""
-    l530.setBrightness(percentage)
-    return f"Set the brightness to {percentage}%."
 
 
 @openaifunc
-def set_color(hue: int, saturation: int) -> str:
-    """set the color of the lamp"""
-    l530.setColor(hue, saturation)
-    return f"Set the color to hue {hue} and saturation {saturation}."
-
+def get_current_datetime():
+    """Return the current date and time."""
+    now = datetime.now()
+    return now.isoformat()
 
 
 # ChatGPT API Function
@@ -84,10 +61,17 @@ def send_message(message, messages):
 #NOTION
 
 @openaifunc
-def add_reminder(notion: Client, database_id: str, reminder: str, date: str):
-    """fungsi ini di gunakan untuk menambah reminder ke dalam notion"""
+def add_reminder(reminder: str, date: str):
+    """fungsi ini di gunakan untuk menambah reminder ke dalam notion
+        @param reminder: ini adalah nama dari agenda yang akan di buat
+        @param date : adalah tanggal dari agenda itu dalam format date_time.isoformat()
+    """
     # Convert the date string to a datetime object
     date_time = parse(date)
+    notion_key = os.getenv('NOTION_KEY')
+    database_id = os.getenv('DATABASE_ID')
+     # Create the Notion client
+    notion = Client(auth=notion_key)
 
     try:
         # Create a new page in the database

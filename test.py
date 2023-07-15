@@ -204,3 +204,39 @@ if len(sys.argv) > 1:
 
 print("Test passed!")
 sys.exit(0)
+
+
+
+
+
+
+# Membuat objek lampu dengan alamat IP, email, dan password
+l530 = PyL530.L530("192.168.0.2", "rorezxez@gmail.com", "tyutyu12T")
+# Melakukan handshake dan login
+l530.handshake()
+l530.login()
+
+@openaifunc
+def turn_on():
+    """get the lamp to turn on"""
+    l530.turnOn()  
+    return "Turned on the light."
+
+@openaifunc
+def turn_off():
+    """get the lamp to turn off"""
+    l530.turnOff()
+    return "Turned off the light."
+
+@openaifunc
+def set_brightness(percentage: int) -> str:
+    """set the brightness of the lamp"""
+    l530.setBrightness(percentage)
+    return f"Set the brightness to {percentage}%."
+
+
+@openaifunc
+def set_color(hue: int, saturation: int) -> str:
+    """set the color of the lamp"""
+    l530.setColor(hue, saturation)
+    return f"Set the color to hue {hue} and saturation {saturation}."

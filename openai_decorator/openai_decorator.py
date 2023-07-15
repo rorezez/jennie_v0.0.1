@@ -1,6 +1,8 @@
 import inspect
 import functools
 import importlib.util
+from pydantic import BaseModel
+
 
 # Global variable to store all functions decorated with @openaifunc
 openai_functions = []
