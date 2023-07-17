@@ -110,35 +110,32 @@ def run_conversation(prompt, messages=[]):
         "content": prompt_text
     })
     # add user prompt to chatgpt messages
-    messages = send_message({"role": "user", "content": prompt}, messages                           
-                            )
+    messages = send_message({"role": "user", "content": prompt}, messages)
 
-    # get chatgpt response
-    message = messages[-1]
+    while True:
+        # get chatgpt response
+        message = messages[-1]
 
-    if message.get("function_call"):
-        # get function name and arguments
-        function_name = message["function_call"]["name"]
-        arguments = json.loads(message["function_call"]["arguments"])
+        if message.get("function_call"):
+            # get function name and arguments
+            function_name = message["function_call"]["name"]
+            arguments = json.loads(message["function_call"]["arguments"])
 
-        # call function dangerously
-        function_response = globals()[function_name](**arguments)
-        
-        # send function result to chatgpt
-        messages = send_message(
+            # call function dangerously
+            function_response = globals()[function_name](**arguments)
             
-            {
-                "role": "function",
-                "name": function_name,
-                "content": function_response,
-            },
-            messages,
-        )
-    else:
-        # if chatgpt doesn't respond with a function call, ask user for input
-        return message["content"]
+            # send function result to chatgpt
+            messages = send_message(
+                {
+                    "role": "function",
+                    "name": function_name,
+                    "content": function_response,
+                },
+                messages,
+            )
+        else:
+            # if chatgpt doesn't respond with a function call, return message
+            return message["content"]
 
-    # save last response for the while loop
-    message = messages[-1]
-
-    return message["content"]
+        # save last response for the while loop
+        message = messages[-1]
