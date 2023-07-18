@@ -18,29 +18,12 @@ BOT_USERNAME: Final = os.getenv('BOT_USERNAME')
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('Hello there! I\'m a bot. What\'s up?')
 
-
-# Lets us use the /help command
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Try typing anything and I will do my best to respond!')
-
-
-# Lets us use the /custom command
-async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    kalau user meminta help jalankan fungsi ini
-    """
-    await update.message.reply_text('This is a custom command, you can add whatever text you want here.')
-
-
 def handle_response(text: str) -> str:
     # Create your own response logic
     processed: str = text.lower()
 
     response = main_func.run_conversation(processed)
     return response
-
-
-
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Get basic info of the incoming message
@@ -69,9 +52,6 @@ if __name__ == '__main__':
 
     # Commands
     app.add_handler(CommandHandler('start', start_command))
-    app.add_handler(CommandHandler('help', help_command))
-    app.add_handler(CommandHandler('custom', custom_command))
-
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
