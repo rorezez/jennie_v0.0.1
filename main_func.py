@@ -22,10 +22,6 @@ logger = logging.getLogger("httpx").setLevel(logging.WARNING)
 load_dotenv()  # take environment variables from .env.
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
-
-
-
 @openaifunc
 def get_current_datetime():
     """Return the current date and time."""
@@ -53,8 +49,8 @@ def send_message(message, messages):
 
     # add response to message list
     messages.append(response["choices"][0]["message"])
-    # print the response in JSON format
-    print(json.dumps(response, indent=4))
+    """# print the response in JSON format
+    print(json.dumps(response, indent=4))"""
 
     return messages
 
@@ -98,29 +94,22 @@ def add_reminder(reminder: str, date: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         return "Maaf, terjadi kesalahan saat menambahkan pengingat Anda."
-@openaifunc   
-def pull_reminders():
+
+@openaifunc  
+def get_notion_database_as_json():
     notion_key = os.getenv('NOTION_KEY')
     database_id = os.getenv('DATABASE_ID')
-    # Create the Notion client
-    notion = Client(auth=notion_key)
 
-    # Query the database
-    results = notion.databases.query(database_id=database_id)
+    client = Client(auth=notion_key)
+    db_info = client.databases.retrieve(database_id=database_id)
+    db_rows = client.databases.query(database_id=database_id)
+    
+    result = {
+        "db_info": db_info,
+        "db_rows": db_rows,
+    }
+    return json.dumps(result, indent=2)
 
-    # Initialize a list to store the reminders
-    reminders = []
-
-    # Get all rows from the database
-    for row in results.get('results', []):
-        # Each row represents a reminder
-        # Append the reminder and its date to the reminders list
-        reminders.append({
-            'title': row.get('properties', {}).get('reminder', {}).get('title', {}).get('content', ''),
-            'date': row.get('properties', {}).get('date', {}).get('start')
-        })
-
-    return {'reminders': reminders}
 
 
 # MAIN FUNCTION
@@ -134,6 +123,8 @@ def run_conversation(prompt, messages=[]):
     })
     # add user prompt to chatgpt messages
     messages = send_message({"role": "user", "content": prompt}, messages)
+     # print messages to CMD
+    print(messages)
 
     while True:
         # get chatgpt response
