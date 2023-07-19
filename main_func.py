@@ -98,7 +98,30 @@ def add_reminder(reminder: str, date: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         return "Maaf, terjadi kesalahan saat menambahkan pengingat Anda."
-    
+@openaifunc   
+def pull_reminders():
+    notion_key = os.getenv('NOTION_KEY')
+    database_id = os.getenv('DATABASE_ID')
+    # Create the Notion client
+    notion = Client(auth=notion_key)
+
+    # Query the database
+    results = notion.databases.query(database_id=database_id)
+
+    # Initialize a list to store the reminders
+    reminders = []
+
+    # Get all rows from the database
+    for row in results.get('results', []):
+        # Each row represents a reminder
+        # Append the reminder and its date to the reminders list
+        reminders.append({
+            'title': row.get('properties', {}).get('reminder', {}).get('title', {}).get('content', ''),
+            'date': row.get('properties', {}).get('date', {}).get('start')
+        })
+
+    return {'reminders': reminders}
+
 
 # MAIN FUNCTION
 def run_conversation(prompt, messages=[]):
